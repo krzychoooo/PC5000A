@@ -9,11 +9,13 @@ class PC5000A
         int baudrate;
         const char *mode; //serial port mode
         static const char modePC5000A[4];
+        int isOpen;
 
         PC5000A();
         PC5000A(int);
         virtual ~PC5000A();
         float getMultimetr(int*);
+        void sendSerial(unsigned char*, int);
 
 
     protected:

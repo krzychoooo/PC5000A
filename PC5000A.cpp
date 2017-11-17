@@ -16,10 +16,11 @@ PC5000A::PC5000A(int com)
     comport_number = com-1;
     baudrate = 9600;
     mode = modePC5000A;
+    isOpen = 1;
     if (RS232_OpenComport(comport_number,PC5000A::baudrate,PC5000A::mode ))
     {
         printf("Can not open comport\n");
-        return ;
+        isOpen = 0;
     }
     /*
     unsigned char command[10]={'*','I','D','N','?'};
@@ -46,7 +47,7 @@ PC5000A::PC5000A(int com)
 float PC5000A::getMultimetr(int *error)
 {
     unsigned char buf[32];
-    float value;
+    float value = 0.0;
     char command[] = {'r', 'e', 'a', 'd', '\r'};
     int i,n;
 
@@ -113,6 +114,24 @@ float PC5000A::getMultimetr(int *error)
     return value;
 }
 
+void PC5000A::sendSerial(unsigned char* komenda, int size){
+    unsigned char buf[4];
+    unsigned char command[64] = {'s', 'e', 'n', 'd'};
+    int i,n;
+
+    RS232_flushRX(comport_number);
+    for(i=0; i<size; i++) command[i+4] = komenda[i];
+    i = RS232_SendBuf(comport_number, command, size+4);
+
+    n=0;
+    while(n==0 && i++<10){
+        Sleep(100);
+        n = RS232_PollComport(comport_number, buf, 2);
+    }
+    if(n>0){
+        //cout<<buf<<endl;
+    }
+}
 
 
 PC5000A::~PC5000A()
